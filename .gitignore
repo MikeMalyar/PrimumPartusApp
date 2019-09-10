@@ -70,3 +70,4 @@ fabric.properties
 /.idea/compiler.xml
 /.idea/misc.xml
 /.idea/vcs.xml
+/target/
