@@ -2,9 +2,11 @@ package com.chnu.service;
 
 import com.chnu.model.User;
 
-import java.util.Optional;
-
 public interface IUserService {
 
-    Optional<User> save(User user);
+    User register(User user);
+
+    boolean checkEmailAvailable(String email);
+
+    User login(User user);
 }

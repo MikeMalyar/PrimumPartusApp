@@ -8,7 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping(value = "/")
+@RequestMapping(value = "/test/")
 public class TestController {
 
     private final IUserService userService;
@@ -23,7 +23,7 @@ public class TestController {
         return "pong";
     }
 
-    @PostMapping(value = "testCreateUser")
+    @PostMapping(value = "createUser")
     public ResponseEntity<User> testCreateUser() {
         User user = new User()
                 .setEmail("john.doe@gmail.com")
@@ -31,11 +31,11 @@ public class TestController {
                 .setEnabled(false)
                 .setRole(new Role().setRole("ADMIN"));
 
-        return ResponseEntity.ok().body(userService.save(user).orElse(null));
+        return ResponseEntity.ok().body(userService.register(user));
     }
 
-    @PostMapping(value = "testAddUser")
+    @PostMapping(value = "addUser")
     public ResponseEntity<User> testAddUser(@RequestBody User user) {
-        return ResponseEntity.ok().body(userService.save(user).orElse(null));
+        return ResponseEntity.ok().body(userService.register(user));
     }
 }
