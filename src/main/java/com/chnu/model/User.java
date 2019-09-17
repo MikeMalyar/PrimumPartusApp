@@ -5,7 +5,12 @@ import java.io.Serializable;
 
 @Entity
 @Table(name = "users")
+@NamedQueries({
+        @NamedQuery(name = User.FIND_BY_EMAIL, query = "select us from User us where us.email = :email")
+})
 public class User implements Serializable {
+
+    public static final String FIND_BY_EMAIL = "findByEmail";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
