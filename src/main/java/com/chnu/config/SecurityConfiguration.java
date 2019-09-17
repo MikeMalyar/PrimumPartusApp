@@ -15,7 +15,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @EnableWebSecurity
 public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
-    private static final String[] WHITE_LIST_URLS = {"/user/login", "/user/logout", "/user/register", "/test/**"};
+    private static final String[] WHITE_LIST_URLS = {"/user/login", "/user/logout", "/user/register",
+            "/user/register/confirm", "/test/**"};
 
     @Autowired
     private UserService userService;

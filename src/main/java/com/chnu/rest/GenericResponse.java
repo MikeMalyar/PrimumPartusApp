@@ -11,7 +11,15 @@ public class GenericResponse<T> {
     private Map<String, Object> additionalInformation;
 
     public static <T> GenericResponse<T> of(T result) {
-        return new GenericResponse<T>().setResult(result);
+        return new GenericResponse<T>().setResult(result).setSuccess(true);
+    }
+
+    public static <T> GenericResponse<T> error(String msg) {
+        return new GenericResponse<T>().setSuccess(false).setMessage(msg);
+    }
+
+    public static <T> GenericResponse<T> withSuccessMessage(String msg) {
+        return new GenericResponse<T>().setSuccess(true).setMessage(msg);
     }
 
     public T getResult() {
