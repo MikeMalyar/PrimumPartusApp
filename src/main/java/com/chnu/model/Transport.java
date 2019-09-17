@@ -15,13 +15,13 @@ public class Transport implements Serializable {
     private String description;
 
     @Column(name = "min_weight", nullable = false)
-    private float min_weight;
+    private float minWeight;
 
     @Column(name = "max_weight", nullable = false)
-    private float max_weight;
+    private float maxWeight;
 
     @Column(name = "max_volume", nullable = false)
-    private float max_volume;
+    private float maxVolume;
 
     public long getTransportId() {
         return transportId;
@@ -41,30 +41,30 @@ public class Transport implements Serializable {
         return this;
     }
 
-    public float getMin_weight() {
-        return min_weight;
+    public float getMinWeight() {
+        return minWeight;
     }
 
-    public Transport setMin_weight(float min_weight) {
-        this.min_weight = min_weight;
+    public Transport setMinWeight(float minWeight) {
+        this.minWeight = minWeight;
         return this;
     }
 
-    public float getMax_weight() {
-        return max_weight;
+    public float getMaxWeight() {
+        return maxWeight;
     }
 
-    public Transport setMax_weight(float max_weight) {
-        this.max_weight = max_weight;
+    public Transport setMaxWeight(float maxWeight) {
+        this.maxWeight = maxWeight;
         return this;
     }
 
-    public float getMax_volume() {
-        return max_volume;
+    public float getMaxVolume() {
+        return maxVolume;
     }
 
-    public Transport setMax_volume(float max_volume) {
-        this.max_volume = max_volume;
+    public Transport setMaxVolume(float maxVolume) {
+        this.maxVolume = maxVolume;
         return this;
     }
 }
