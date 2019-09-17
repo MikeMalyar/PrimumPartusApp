@@ -6,7 +6,12 @@ import javax.persistence.*;
 
 @Entity
 @Table(name = "roles")
+@NamedQueries({
+        @NamedQuery(name = Role.FIND_BY_ROLE, query = "select r from Role r where r.role = :role")
+})
 public class Role implements GrantedAuthority {
+
+    public static final String FIND_BY_ROLE = "findByRole";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

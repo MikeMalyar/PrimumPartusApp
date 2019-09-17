@@ -1,12 +1,16 @@
 package com.chnu.service;
 
 import com.chnu.model.User;
+import com.chnu.wrapper.UserLoginWrapper;
+import com.chnu.wrapper.UserRegistrationWrapper;
 
 public interface IUserService {
 
-    User register(User user);
+    User register(UserRegistrationWrapper wrapper);
 
     boolean checkEmailAvailable(String email);
 
-    User login(User user);
+    User login(UserLoginWrapper wrapper);
+
+    boolean confirmRegistration(String token);
 }
