@@ -25,7 +25,8 @@ public class ProfileService implements IProfileService {
 
     @Override
     public Optional<Profile> save(Profile profile) {
-        return Optional.ofNullable(profileRepository.save(profile));
+        if (!findById(profile.getUserId()).isPresent()) return Optional.ofNullable(profileRepository.save(profile));
+        return Optional.empty();
     }
 
     @Override
