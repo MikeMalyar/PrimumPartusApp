@@ -1,6 +1,6 @@
 package com.chnu.controller;
 
-import com.chnu.model.User;
+import com.chnu.dto.UserDTO;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.IUserService;
 import com.chnu.wrapper.UserLoginWrapper;
@@ -22,8 +22,8 @@ public class UserController {
     }
 
     @PostMapping("/register")
-    public GenericResponse<User> register(@RequestBody UserRegistrationWrapper wrapper) {
-        GenericResponse<User> response = checkRegistration(wrapper);
+    public GenericResponse<UserDTO> register(@RequestBody UserRegistrationWrapper wrapper) {
+        GenericResponse<UserDTO> response = checkRegistration(wrapper);
         if(response == null) {
             response = GenericResponse.of(userService.register(wrapper));
         }
@@ -40,8 +40,12 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public GenericResponse<User> login(@RequestBody UserLoginWrapper wrapper) {
-        return GenericResponse.of(userService.login(wrapper));
+    public GenericResponse<UserDTO> login(@RequestBody UserLoginWrapper wrapper) {
+        UserDTO user = userService.login(wrapper);
+        if(!user.getCorrectCredentials()) {
+            return GenericResponse.error("Username or password is incorrect.");
+        }
+        return GenericResponse.of(user);
     }
 
     @PostMapping("/logout")
@@ -57,7 +61,7 @@ public class UserController {
         return GenericResponse.of(isAvailable).setSuccess(true);
     }
 
-    private GenericResponse<User> checkRegistration(UserRegistrationWrapper wrapper) {
+    private GenericResponse<UserDTO> checkRegistration(UserRegistrationWrapper wrapper) {
         if(!userService.checkEmailAvailable(wrapper.getEmail())) {
             return GenericResponse.error("Email isn't available");
         }
