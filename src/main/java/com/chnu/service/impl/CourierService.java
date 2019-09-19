@@ -26,7 +26,8 @@ public class CourierService implements ICourierService {
 
     @Override
     public Optional<Courier> save(Courier courier) {
-        return Optional.ofNullable(courierRepository.save(courier));
+        if (!findById(courier.getUserId()).isPresent()) return Optional.ofNullable(courierRepository.save(courier));
+        return Optional.empty();
     }
 
     public Optional<Courier> findById(Long id){
