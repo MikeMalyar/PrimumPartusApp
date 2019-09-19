@@ -1,5 +1,6 @@
 package com.chnu.service.impl;
 
+import com.chnu.dto.UserDTO;
 import com.chnu.model.Role;
 import com.chnu.model.User;
 import com.chnu.model.VerificationToken;
@@ -14,6 +15,7 @@ import com.chnu.wrapper.UserRegistrationWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -50,7 +52,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User register(UserRegistrationWrapper wrapper) {
+    public UserDTO register(UserRegistrationWrapper wrapper) {
         wrapper.setPassword(passwordEncoder.encode(wrapper.getPassword()));
 
         User user = new User()
@@ -70,7 +72,7 @@ public class UserService implements IUserService, UserDetailsService {
         token.calculateExpiryDate();
         verificationTokenRepository.save(token);
 
-        return user;
+        return UserDTO.fromUser(user);
     }
 
     @Override
@@ -102,17 +104,18 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public User login(UserLoginWrapper wrapper) {
+    public UserDTO login(UserLoginWrapper wrapper) {
         UsernamePasswordAuthenticationToken authenticationTokenRequest = new
                 UsernamePasswordAuthenticationToken(wrapper.getEmail(), wrapper.getPassword());
         try {
             Authentication authentication = authenticationManager.authenticate(authenticationTokenRequest);
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
-            return (User)authentication.getPrincipal();
-        } catch (BadCredentialsException ex) {
-            ex.printStackTrace();
+            return UserDTO.fromUser((User)authentication.getPrincipal()).setCorrectCredentials(true);
+        } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
+            return new UserDTO()
+                    .setEmail(wrapper.getEmail())
+                    .setCorrectCredentials(false);
         }
-        return null;
     }
 }
