@@ -1,35 +1,30 @@
 package com.chnu.model;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
-import java.net.URL;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "companies")
 public class Company {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "company_id")
     private Long companyId;
 
-    @Column(name = "name")
+    @Column(name = "name", nullable = false)
     private  String name;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "owner_id", referencedColumnName = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private User ownerId;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    private User owner;
 
     @Column(name = "url")
-    private URL url;
+    private String url;
 
     @OneToMany(fetch = FetchType.EAGER, mappedBy = "company", cascade = CascadeType.REMOVE)
     private Set<Courier> couriers;
 
-    @Column(name = "enabled")
+    @Column(name = "enabled", nullable = false)
     private Boolean enabled;
 
     public Long getCompanyId() {
@@ -50,20 +45,20 @@ public class Company {
         return this;
     }
 
-    public User getOwnerId() {
-        return ownerId;
+    public User getOwner() {
+        return owner;
     }
 
-    public Company setOwnerId(User ownerId) {
-        this.ownerId = ownerId;
+    public Company setOwner(User owner) {
+        this.owner = owner;
         return this;
     }
 
-    public URL getUrl() {
+    public String getUrl() {
         return url;
     }
 
-    public Company setUrl(URL url) {
+    public Company setUrl(String url) {
         this.url = url;
         return this;
     }
