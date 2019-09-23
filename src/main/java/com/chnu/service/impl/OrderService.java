@@ -1,6 +1,5 @@
 package com.chnu.service.impl;
 
-import com.chnu.model.Courier;
 import com.chnu.model.Order;
 import com.chnu.repository.IOrderRepository;
 import com.chnu.service.IOrderService;
@@ -21,36 +20,39 @@ public class OrderService implements IOrderService {
         this.orderRepository = orderRepository;
     }
 
+    @Override
     public Optional<Order> save(Order order) {
         if (!findById(order.getOrderId()).isPresent()) return Optional.ofNullable(orderRepository.save(order));
         return Optional.empty();
     }
 
-    public Optional<Order> findById(Long id){
+    @Override
+    public Optional<Order> findById(Long id) {
         return orderRepository.findById(id);
     }
 
-    public Order update(Order object){
+    @Override
+    public Order update(Order object) {
         return orderRepository.update(object);
     }
 
-    public boolean existsById(Long pk){
+    @Override
+    public boolean existsById(Long pk) {
         return orderRepository.existsById(pk);
     }
 
-    public void deleteById(Long pk){
+    @Override
+    public void deleteById(Long pk) {
         orderRepository.deleteById(pk);
     }
 
-    public void delete(Order entity){
-        orderRepository.delete(entity);
-    }
-
-    public List<Order> findWithPagination(int first, int count){
+    @Override
+    public List<Order> findWithPagination(int first, int count) {
         return orderRepository.findWithPagination(first, count);
     }
 
-    public List<Order> findAll(){
+    @Override
+    public List<Order> findAll() {
         return orderRepository.findAll();
     }
 }

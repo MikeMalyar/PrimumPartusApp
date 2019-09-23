@@ -42,12 +42,6 @@ public class OrderController {
         return GenericResponse.error("Order is null.");
     }
 
-    @DeleteMapping("")
-    public GenericResponse<Void> delete(@RequestBody Order object) {
-        orderService.delete(object);
-        return GenericResponse.empty();
-    }
-
     @DeleteMapping("/{id}")
     public GenericResponse<Void> deleteById(@PathVariable(name = "id", required = true) Long pk) {
         orderService.deleteById(pk);

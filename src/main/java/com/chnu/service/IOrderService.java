@@ -12,8 +12,6 @@ public interface IOrderService {
 
     Order update(Order object);
 
-    void delete(Order object);
-
     boolean existsById(Long pk);
 
     void deleteById(Long pk);

@@ -11,17 +11,16 @@ import java.util.Date;
 public class Order {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "order_id")
     private Long orderId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private User customer;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "company_id", referencedColumnName = "company_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Company company;
 
     @Column(name = "description")
@@ -44,7 +43,6 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "courier_id", referencedColumnName = "user_id", nullable = false)
-    @OnDelete(action = OnDeleteAction.CASCADE)
     private Courier courier;
 
     public enum Status {
