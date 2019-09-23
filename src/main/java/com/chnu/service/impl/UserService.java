@@ -28,6 +28,7 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -117,5 +118,13 @@ public class UserService implements IUserService, UserDetailsService {
                     .setEmail(wrapper.getEmail())
                     .setCorrectCredentials(false);
         }
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        if(id != null) {
+            return userRepository.findById(id);
+        }
+        return Optional.empty();
     }
 }

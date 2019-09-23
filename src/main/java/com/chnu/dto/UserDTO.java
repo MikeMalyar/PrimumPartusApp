@@ -12,12 +12,12 @@ public class UserDTO {
     private Boolean correctCredentials;
 
     public static UserDTO fromUser(User user) {
-        return new UserDTO()
+        return user != null ? new UserDTO()
                 .setEmail(user.getEmail())
                 .setUserId(user.getUserId())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setRole(user.getRole().getRole())
-                .setEnabled(user.getEnabled());
+                .setEnabled(user.getEnabled()) : null;
     }
 
     public Long getUserId() {

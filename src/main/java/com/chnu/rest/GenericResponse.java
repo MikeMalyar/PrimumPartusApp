@@ -22,6 +22,10 @@ public class GenericResponse<T> {
         return new GenericResponse<T>().setSuccess(true).setMessage(msg);
     }
 
+    public static <T> GenericResponse<T> empty() {
+        return new GenericResponse<T>();
+    }
+
     public T getResult() {
         return result;
     }
