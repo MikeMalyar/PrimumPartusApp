@@ -10,6 +10,7 @@ public class UserDTO {
     private String role;
     private Boolean enabled;
     private Boolean correctCredentials;
+    private Boolean locked;
 
     public static UserDTO fromUser(User user) {
         return user != null ? new UserDTO()
@@ -17,7 +18,8 @@ public class UserDTO {
                 .setUserId(user.getUserId())
                 .setPhoneNumber(user.getPhoneNumber())
                 .setRole(user.getRole().getRole())
-                .setEnabled(user.getEnabled()) : null;
+                .setEnabled(user.getEnabled())
+                .setLocked(!user.isAccountNonLocked()): null;
     }
 
     public Long getUserId() {
@@ -71,6 +73,15 @@ public class UserDTO {
 
     public UserDTO setRole(String role) {
         this.role = role;
+        return this;
+    }
+
+    public Boolean getLocked() {
+        return locked;
+    }
+
+    public UserDTO setLocked(Boolean locked) {
+        this.locked = locked;
         return this;
     }
 }

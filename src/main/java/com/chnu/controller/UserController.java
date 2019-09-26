@@ -3,18 +3,26 @@ package com.chnu.controller;
 import com.chnu.dto.UserDTO;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.IUserService;
+import com.chnu.util.LoggerUtil;
+import com.chnu.util.PropertiesUtil;
 import com.chnu.wrapper.UserLoginWrapper;
 import com.chnu.wrapper.UserRegistrationWrapper;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
+
+import static com.chnu.util.PropertiesUtil.getMessage;
+import static com.chnu.util.PropertiesUtil.getProperty;
 
 @RestController
 @RequestMapping(value = "/user")
 public class UserController {
 
     private final IUserService userService;
+
+    private static Logger logger = LoggerUtil.getLogger(UserController.class);
 
     @Autowired
     public UserController(IUserService userService) {
@@ -33,18 +41,25 @@ public class UserController {
     @PostMapping("/register/confirm")
     public GenericResponse confirm(@RequestParam(name = "token", required = true) String token) {
         if(userService.confirmRegistration(token)) {
-            return GenericResponse.withSuccessMessage("Successfully confirmed registration.");
+            return GenericResponse.withSuccessMessage(getMessage("msg.registration.success"));
         } else {
-            return GenericResponse.error("Confirmation link has expired.");
+            return GenericResponse.error(getMessage("msg.registration.expired"));
         }
     }
 
     @PostMapping("/login")
     public GenericResponse<UserDTO> login(@RequestBody UserLoginWrapper wrapper) {
         UserDTO user = userService.login(wrapper);
-        if(!user.getCorrectCredentials()) {
-            return GenericResponse.error("Username or password is incorrect.");
+        if(user.getLocked()) {
+            logger.warn(String.format("User account %s was blocked", wrapper.getEmail()));
+            return GenericResponse.error(String.format(getMessage("msg.account.locked"),
+                    getProperty(PropertiesUtil.SYSTEM_PROPERTIES, "account.lock.minutes")));
         }
+        if(!user.getCorrectCredentials()) {
+            logger.warn("Bad credentials entered for user " + wrapper.getEmail());
+            return GenericResponse.error(getMessage("msg.bad.credentials"));
+        }
+        logger.info("Logged in user " + wrapper.getEmail());
         return GenericResponse.of(user);
     }
 
@@ -52,7 +67,7 @@ public class UserController {
     public GenericResponse logout(SessionStatus session) {
         SecurityContextHolder.getContext().setAuthentication(null);
         session.setComplete();
-        return new GenericResponse().setMessage("Successfully logged out.");
+        return new GenericResponse().setMessage(getMessage("msg.logged.out"));
     }
 
     @GetMapping("/checkEmailAvailable")
@@ -63,10 +78,10 @@ public class UserController {
 
     private GenericResponse<UserDTO> checkRegistration(UserRegistrationWrapper wrapper) {
         if(!userService.checkEmailAvailable(wrapper.getEmail())) {
-            return GenericResponse.error("Email isn't available");
+            return GenericResponse.error(getMessage("msg.email.unavailable"));
         }
         if(!wrapper.getPassword().equals(wrapper.getConfirmPassword())) {
-            return GenericResponse.error("Passwords don't match.");
+            return GenericResponse.error(getMessage("msg.passwords.dont.match"));
         }
         return null;
     }
