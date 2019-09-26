@@ -4,6 +4,7 @@ import com.chnu.dto.UserDTO;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.IUserService;
 import com.chnu.util.LoggerUtil;
+import com.chnu.util.PropertiesUtil;
 import com.chnu.wrapper.UserLoginWrapper;
 import com.chnu.wrapper.UserRegistrationWrapper;
 import org.apache.logging.log4j.Logger;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.support.SessionStatus;
 
 import static com.chnu.util.PropertiesUtil.getMessage;
+import static com.chnu.util.PropertiesUtil.getProperty;
 
 @RestController
 @RequestMapping(value = "/user")
@@ -48,6 +50,11 @@ public class UserController {
     @PostMapping("/login")
     public GenericResponse<UserDTO> login(@RequestBody UserLoginWrapper wrapper) {
         UserDTO user = userService.login(wrapper);
+        if(user.getLocked()) {
+            logger.warn(String.format("User account %s was blocked", wrapper.getEmail()));
+            return GenericResponse.error(String.format(getMessage("msg.account.locked"),
+                    getProperty(PropertiesUtil.SYSTEM_PROPERTIES, "account.lock.minutes")));
+        }
         if(!user.getCorrectCredentials()) {
             logger.warn("Bad credentials entered for user " + wrapper.getEmail());
             return GenericResponse.error(getMessage("msg.bad.credentials"));

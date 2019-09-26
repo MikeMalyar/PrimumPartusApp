@@ -10,6 +10,7 @@ import com.chnu.repository.IVerificationTokenRepository;
 import com.chnu.repository.impl.RoleRepository;
 import com.chnu.repository.impl.VerificationTokenRepository;
 import com.chnu.service.IUserService;
+import com.chnu.util.PropertiesUtil;
 import com.chnu.wrapper.UserLoginWrapper;
 import com.chnu.wrapper.UserRegistrationWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +32,8 @@ import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.chnu.util.PropertiesUtil.getProperty;
+
 @Service
 @Transactional
 public class UserService implements IUserService, UserDetailsService {
@@ -40,6 +43,16 @@ public class UserService implements IUserService, UserDetailsService {
     private final IRoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private static final Integer maxLoginAttempts;
+    static {
+        String s = getProperty(PropertiesUtil.SYSTEM_PROPERTIES, "login.max.attempts");
+        if(s != null) {
+            maxLoginAttempts = Integer.decode(s);
+        } else {
+            maxLoginAttempts = 0;
+        }
+    }
 
     @Autowired
     public UserService(IUserRepository userRepository, AuthenticationManager authenticationManager,
@@ -112,8 +125,35 @@ public class UserService implements IUserService, UserDetailsService {
             Authentication authentication = authenticationManager.authenticate(authenticationTokenRequest);
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
-            return UserDTO.fromUser((User)authentication.getPrincipal()).setCorrectCredentials(true);
+
+            User user = (User)authentication.getPrincipal();
+            if(user.getLock() != null) {
+                user.setLock(null);
+                userRepository.update(user);
+            }
+
+            return UserDTO.fromUser(user).setCorrectCredentials(true);
         } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
+            User user = userRepository.findByEmail(wrapper.getEmail()).orElse(null);
+
+            if(user != null) {
+                int failCount = user.getFailAttempts() != null ? user.getFailAttempts() : 0;
+                int maxAttempts = maxLoginAttempts != null ? maxLoginAttempts : 3;
+                failCount++;
+
+                if(failCount < maxAttempts) {
+                    user.setFailAttempts(failCount);
+                } else {
+                    user.setFailAttempts(0);
+                    user.setLock(new Date());
+                }
+                userRepository.update(user);
+
+                return new UserDTO()
+                        .setEmail(wrapper.getEmail())
+                        .setCorrectCredentials(false)
+                        .setLocked(!user.isAccountNonLocked());
+            }
             return new UserDTO()
                     .setEmail(wrapper.getEmail())
                     .setCorrectCredentials(false);
