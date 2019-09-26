@@ -46,7 +46,7 @@ public class User implements Serializable, UserDetails {
     @Column(name = "lock")
     private Date lock;
 
-    @Column(name = "fail_attempts", nullable = false)
+    @Column(name = "fail_attempts")
     private Integer failAttempts;
 
     @JsonIgnore
