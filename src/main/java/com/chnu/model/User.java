@@ -1,5 +1,6 @@
 package com.chnu.model;
 
+import com.chnu.util.PropertiesUtil;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,6 +9,9 @@ import javax.persistence.*;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
+
+import static com.chnu.util.PropertiesUtil.getProperty;
 
 @Entity
 @Table(name = "users")
@@ -39,6 +43,12 @@ public class User implements Serializable, UserDetails {
     @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
     private Role role;
 
+    @Column(name = "lock")
+    private Date lock;
+
+    @Column(name = "fail_attempts")
+    private Integer failAttempts;
+
     @JsonIgnore
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -60,7 +70,12 @@ public class User implements Serializable, UserDetails {
     @JsonIgnore
     @Override
     public boolean isAccountNonLocked() {
-        return true;
+        String s = getProperty(PropertiesUtil.SYSTEM_PROPERTIES, "account.lock.minutes");
+        Integer lockTimeInMinutes = 60;
+        if(s != null) {
+            lockTimeInMinutes = Integer.decode(s);
+        }
+        return lock == null || ((new Date().getTime() - lock.getTime()) / 60000 >= lockTimeInMinutes);
     }
 
     @JsonIgnore
@@ -126,6 +141,24 @@ public class User implements Serializable, UserDetails {
 
     public User setRole(Role role) {
         this.role = role;
+        return this;
+    }
+
+    public Date getLock() {
+        return lock;
+    }
+
+    public User setLock(Date lock) {
+        this.lock = lock;
+        return this;
+    }
+
+    public Integer getFailAttempts() {
+        return failAttempts;
+    }
+
+    public User setFailAttempts(Integer failAttempts) {
+        this.failAttempts = failAttempts;
         return this;
     }
 }

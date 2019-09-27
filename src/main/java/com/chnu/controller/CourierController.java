@@ -1,6 +1,7 @@
 package com.chnu.controller;
 
 import com.chnu.model.Courier;
+import com.chnu.rest.GenericResponse;
 import com.chnu.service.ICourierService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -18,32 +19,43 @@ public class CourierController {
     }
 
     @PostMapping("")
-    public Courier save(@RequestBody Courier courier) {
-        return courierService.save(courier).orElse(null);
+    public GenericResponse<Courier> save(@RequestBody Courier courier) {
+        GenericResponse<Courier> response = GenericResponse
+                .of(courierService.save(courier).orElse(null));
+        return response.getResult() != null ? response :
+                GenericResponse.error("This courier already exist.");
     }
 
     @GetMapping("/{id}")
-    public Courier findById(@PathVariable(name = "id", required = true) Long pk) {
-        return courierService.findById(pk).orElse(null);
+    public GenericResponse<Courier> findById(@PathVariable(name = "id", required = true) Long pk) {
+        GenericResponse<Courier> response = GenericResponse
+                .of(courierService.findById(pk).orElse(null));
+        return response.getResult() != null ? response :
+                GenericResponse.error("Courier not found with id " + pk);
     }
 
     @PutMapping("")
-    public Courier update(@RequestBody Courier object) {
-        return courierService.update(object);
+    public GenericResponse<Courier> update(@RequestBody Courier object) {
+        if(object != null) {
+            return GenericResponse.of(courierService.update(object));
+        }
+        return GenericResponse.error("Courier is null.");
     }
 
     @DeleteMapping("")
-    public void delete(@RequestBody Courier object) {
+    public GenericResponse<Void> delete(@RequestBody Courier object) {
         courierService.delete(object);
+        return GenericResponse.empty();
     }
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable(name = "id", required = true) Long pk) {
+    public GenericResponse<Void> deleteById(@PathVariable(name = "id", required = true) Long pk) {
         courierService.deleteById(pk);
+        return GenericResponse.empty();
     }
 
     @GetMapping("")
-    public List<Courier> findAll() {
-        return courierService.findAll();
+    public GenericResponse<List<Courier>> findAll() {
+        return GenericResponse.of(courierService.findAll());
     }
 }

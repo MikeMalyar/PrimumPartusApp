@@ -1,5 +1,6 @@
 package com.chnu.service.impl;
 
+import com.chnu.dto.UserDTO;
 import com.chnu.model.Role;
 import com.chnu.model.User;
 import com.chnu.model.VerificationToken;
@@ -9,11 +10,13 @@ import com.chnu.repository.IVerificationTokenRepository;
 import com.chnu.repository.impl.RoleRepository;
 import com.chnu.repository.impl.VerificationTokenRepository;
 import com.chnu.service.IUserService;
+import com.chnu.util.PropertiesUtil;
 import com.chnu.wrapper.UserLoginWrapper;
 import com.chnu.wrapper.UserRegistrationWrapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -26,7 +29,10 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 import java.util.Date;
+import java.util.Optional;
 import java.util.UUID;
+
+import static com.chnu.util.PropertiesUtil.getProperty;
 
 @Service
 @Transactional
@@ -37,6 +43,16 @@ public class UserService implements IUserService, UserDetailsService {
     private final IRoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+
+    private static final Integer maxLoginAttempts;
+    static {
+        String s = getProperty(PropertiesUtil.SYSTEM_PROPERTIES, "login.max.attempts");
+        if(s != null) {
+            maxLoginAttempts = Integer.decode(s);
+        } else {
+            maxLoginAttempts = 0;
+        }
+    }
 
     @Autowired
     public UserService(IUserRepository userRepository, AuthenticationManager authenticationManager,
@@ -50,7 +66,7 @@ public class UserService implements IUserService, UserDetailsService {
     }
 
     @Override
-    public User register(UserRegistrationWrapper wrapper) {
+    public UserDTO register(UserRegistrationWrapper wrapper) {
         wrapper.setPassword(passwordEncoder.encode(wrapper.getPassword()));
 
         User user = new User()
@@ -70,7 +86,7 @@ public class UserService implements IUserService, UserDetailsService {
         token.calculateExpiryDate();
         verificationTokenRepository.save(token);
 
-        return user;
+        return UserDTO.fromUser(user);
     }
 
     @Override
@@ -102,17 +118,53 @@ public class UserService implements IUserService, UserDetailsService {
         return userRepository.findByEmail(email).orElse(null);
     }
 
-    public User login(UserLoginWrapper wrapper) {
+    public UserDTO login(UserLoginWrapper wrapper) {
         UsernamePasswordAuthenticationToken authenticationTokenRequest = new
                 UsernamePasswordAuthenticationToken(wrapper.getEmail(), wrapper.getPassword());
         try {
             Authentication authentication = authenticationManager.authenticate(authenticationTokenRequest);
             SecurityContext securityContext = SecurityContextHolder.getContext();
             securityContext.setAuthentication(authentication);
-            return (User)authentication.getPrincipal();
-        } catch (BadCredentialsException ex) {
-            ex.printStackTrace();
+
+            User user = (User)authentication.getPrincipal();
+            if(user.getLock() != null) {
+                user.setLock(null);
+                userRepository.update(user);
+            }
+
+            return UserDTO.fromUser(user).setCorrectCredentials(true);
+        } catch (BadCredentialsException | InternalAuthenticationServiceException ex) {
+            User user = userRepository.findByEmail(wrapper.getEmail()).orElse(null);
+
+            if(user != null) {
+                int failCount = user.getFailAttempts() != null ? user.getFailAttempts() : 0;
+                int maxAttempts = maxLoginAttempts != null ? maxLoginAttempts : 3;
+                failCount++;
+
+                if(failCount < maxAttempts) {
+                    user.setFailAttempts(failCount);
+                } else {
+                    user.setFailAttempts(0);
+                    user.setLock(new Date());
+                }
+                userRepository.update(user);
+
+                return new UserDTO()
+                        .setEmail(wrapper.getEmail())
+                        .setCorrectCredentials(false)
+                        .setLocked(!user.isAccountNonLocked());
+            }
+            return new UserDTO()
+                    .setEmail(wrapper.getEmail())
+                    .setCorrectCredentials(false);
         }
-        return null;
+    }
+
+    @Override
+    public Optional<User> findById(Long id) {
+        if(id != null) {
+            return userRepository.findById(id);
+        }
+        return Optional.empty();
     }
 }
