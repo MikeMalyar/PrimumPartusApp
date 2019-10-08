@@ -1,6 +1,5 @@
 package com.chnu.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
@@ -19,11 +18,8 @@ public class Courier implements Serializable {
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Transport transport;
 
-    @JsonIgnore
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "company_id")
-    @OnDelete(action = OnDeleteAction.CASCADE)
-    private Company company;
+    @Column(name = "company_id")
+    private Long companyId;
 
     public Long getUserId() {
         return userId;
@@ -40,6 +36,15 @@ public class Courier implements Serializable {
 
     public Courier setTransport(Transport transport) {
         this.transport = transport;
+        return this;
+    }
+
+    public Long getCompanyId() {
+        return companyId;
+    }
+
+    public Courier setCompanyId(Long companyId) {
+        this.companyId = companyId;
         return this;
     }
 }

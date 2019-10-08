@@ -1,7 +1,6 @@
 package com.chnu.model;
 
 import javax.persistence.*;
-import java.util.Set;
 
 @Entity
 @Table(name = "companies")
@@ -20,9 +19,6 @@ public class Company {
 
     @Column(name = "url")
     private String url;
-
-    @OneToMany(fetch = FetchType.EAGER, mappedBy = "company", cascade = CascadeType.REMOVE)
-    private Set<Courier> couriers;
 
     @Column(name = "enabled", nullable = false)
     private Boolean enabled;
@@ -60,15 +56,6 @@ public class Company {
 
     public Company setUrl(String url) {
         this.url = url;
-        return this;
-    }
-
-    public Set<Courier> getCouriers() {
-        return couriers;
-    }
-
-    public Company setCouriers(Set<Courier> couriers) {
-        this.couriers = couriers;
         return this;
     }
 
