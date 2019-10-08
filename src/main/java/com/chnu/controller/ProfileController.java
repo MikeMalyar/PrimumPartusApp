@@ -1,11 +1,14 @@
 package com.chnu.controller;
 
 import com.chnu.model.Profile;
+import com.chnu.rest.GenericResponse;
 import com.chnu.service.ICourierService;
 import com.chnu.service.IProfileService;
 import com.chnu.service.impl.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+
+import static com.chnu.util.PropertiesUtil.getMessage;
 
 @RestController
 @RequestMapping(value = "/profile")
@@ -19,27 +22,35 @@ public class ProfileController {
     }
 
     @PostMapping("")
-    public Profile save(@RequestBody Profile profile) {
-        return profileService.save(profile).orElse(null);
+    public GenericResponse<Profile> save(@RequestBody Profile profile) {
+        GenericResponse<Profile> response = GenericResponse
+                .of(profileService.save(profile).orElse(null));
+        return response.getResult() != null ? response :
+                GenericResponse.error(getMessage("msg.profile.exit"));
     }
 
     @GetMapping("/{id}")
-    public Profile findById(@PathVariable(name = "id", required = true) Long pk) {
-        return profileService.findById(pk).orElse(null);
+    public GenericResponse<Profile> findById(@PathVariable(name = "id", required = true) Long pk) {
+        GenericResponse<Profile> response = GenericResponse
+                .of(profileService.findById(pk).orElse(null));
+        return response.getResult() != null ? response :
+                GenericResponse.error(getMessage("msg.profile.dont.id"));
     }
 
     @PutMapping("")
-    public Profile update(@RequestBody Profile object) {
-        return profileService.update(object);
+    public GenericResponse<Profile> update(@RequestBody Profile object) {
+
+        if(object != null) {
+            return GenericResponse.of(profileService.update(object));
+        }
+        return GenericResponse.error(getMessage("msg.profile.null"));
     }
 
-    @DeleteMapping("")
-    public void delete(@RequestBody Profile object) {
-        profileService.delete(object);
-    }
+
 
     @DeleteMapping("/{id}")
-    public void deleteById(@PathVariable(name = "id", required = true) Long pk) {
+    public GenericResponse<Void> deleteById(@PathVariable(name = "id", required = true) Long pk) {
         profileService.deleteById(pk);
+        return GenericResponse.empty();
     }
 }
