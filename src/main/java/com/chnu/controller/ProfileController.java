@@ -8,6 +8,8 @@ import com.chnu.service.impl.ProfileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import static com.chnu.util.PropertiesUtil.getMessage;
+
 @RestController
 @RequestMapping(value = "/profile")
 public class ProfileController {
@@ -24,7 +26,7 @@ public class ProfileController {
         GenericResponse<Profile> response = GenericResponse
                 .of(profileService.save(profile).orElse(null));
         return response.getResult() != null ? response :
-                GenericResponse.error("This profile already exist.");
+                GenericResponse.error(getMessage("msg.profile.exit"));
     }
 
     @GetMapping("/{id}")
@@ -32,7 +34,7 @@ public class ProfileController {
         GenericResponse<Profile> response = GenericResponse
                 .of(profileService.findById(pk).orElse(null));
         return response.getResult() != null ? response :
-                GenericResponse.error("Profile not found with id " + pk);
+                GenericResponse.error(getMessage("msg.profile.dont.id"));
     }
 
     @PutMapping("")
@@ -41,14 +43,10 @@ public class ProfileController {
         if(object != null) {
             return GenericResponse.of(profileService.update(object));
         }
-        return GenericResponse.error("Profile is null.");
+        return GenericResponse.error(getMessage("msg.profile.null"));
     }
 
-    @DeleteMapping("")
-    public GenericResponse<Void> delete(@RequestBody Profile object) {
-        profileService.delete(object);
-        return GenericResponse.empty();
-    }
+
 
     @DeleteMapping("/{id}")
     public GenericResponse<Void> deleteById(@PathVariable(name = "id", required = true) Long pk) {
