@@ -1,5 +1,6 @@
 package com.chnu.controller;
 
+import com.chnu.controller.base.BaseController;
 import com.chnu.model.Order;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.IOrderService;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/order")
-public class OrderController {
+public class OrderController extends BaseController  {
     private final IOrderService orderService;
 
     @Autowired
@@ -20,6 +21,7 @@ public class OrderController {
 
     @PostMapping("")
     public GenericResponse<Order> save(@RequestBody Order order) {
+        validate(order);
         GenericResponse<Order> response = GenericResponse
                 .of(orderService.save(order).orElse(null));
         return response.getResult() != null ? response :
@@ -36,6 +38,7 @@ public class OrderController {
 
     @PutMapping("")
     public GenericResponse<Order> update(@RequestBody Order object) {
+        validate(object);
         if (object != null) {
             return GenericResponse.of(orderService.update(object));
         }

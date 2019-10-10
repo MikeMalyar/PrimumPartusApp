@@ -1,5 +1,6 @@
 package com.chnu.controller;
 
+import com.chnu.controller.base.BaseController;
 import com.chnu.dto.UserDTO;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.IUserService;
@@ -18,7 +19,7 @@ import static com.chnu.util.PropertiesUtil.getProperty;
 
 @RestController
 @RequestMapping(value = "/user")
-public class UserController {
+public class UserController extends BaseController {
 
     private final IUserService userService;
 
@@ -31,6 +32,7 @@ public class UserController {
 
     @PostMapping("/register")
     public GenericResponse<UserDTO> register(@RequestBody UserRegistrationWrapper wrapper) {
+        validate(wrapper);
         GenericResponse<UserDTO> response = checkRegistration(wrapper);
         if(response == null) {
             response = GenericResponse.of(userService.register(wrapper));
@@ -49,6 +51,7 @@ public class UserController {
 
     @PostMapping("/login")
     public GenericResponse<UserDTO> login(@RequestBody UserLoginWrapper wrapper) {
+        validate(wrapper);
         UserDTO user = userService.login(wrapper);
         if(user.getLocked()) {
             logger.warn(String.format("User account %s was blocked", wrapper.getEmail()));
@@ -77,6 +80,7 @@ public class UserController {
     }
 
     private GenericResponse<UserDTO> checkRegistration(UserRegistrationWrapper wrapper) {
+        validate(wrapper);
         if(!userService.checkEmailAvailable(wrapper.getEmail())) {
             return GenericResponse.error(getMessage("msg.email.unavailable"));
         }

@@ -1,6 +1,8 @@
 package com.chnu.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "companies")
@@ -11,16 +13,19 @@ public class Company {
     private Long companyId;
 
     @Column(name = "name", nullable = false)
+    @NotBlank(message = "Company name cannot be blank")
     private  String name;
 
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id", nullable = false)
+    @NotNull(message = "Owner cannot be null")
     private User owner;
 
     @Column(name = "url")
     private String url;
 
     @Column(name = "enabled", nullable = false)
+    @NotNull(message = "Enable field cannot be null")
     private Boolean enabled;
 
     public Long getCompanyId() {

@@ -6,6 +6,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
@@ -28,19 +29,23 @@ public class User implements Serializable, UserDetails {
     private Long userId;
 
     @Column(name = "email", nullable = false)
+    @NotNull(message = "Email cannot be null")
     private String email;
 
     @Column(name = "phone_number")
     private String phoneNumber;
 
     @Column(name = "password", nullable = false)
+    @NotNull(message = "Password cannot be null")
     private String password;
 
     @Column(name = "enabled", nullable = false)
+    @NotNull(message = "Enable field cannot be null")
     private Boolean enabled;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "role_id", referencedColumnName = "role_id", nullable = false)
+    @NotNull(message = "Role cannot be null")
     private Role role;
 
     @Column(name = "lock")

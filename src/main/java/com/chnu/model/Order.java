@@ -1,9 +1,7 @@
 package com.chnu.model;
 
-import org.hibernate.annotations.OnDelete;
-import org.hibernate.annotations.OnDeleteAction;
-
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -17,10 +15,12 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "customer_id", referencedColumnName = "user_id", nullable = false)
+    @NotNull(message = "Customer cannot be null")
     private User customer;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "company_id", referencedColumnName = "company_id", nullable = false)
+    @NotNull(message = "Company cannot be null")
     private Company company;
 
     @Column(name = "description")
@@ -43,6 +43,7 @@ public class Order {
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "courier_id", referencedColumnName = "user_id", nullable = false)
+    @NotNull(message = "Courier cannot be null")
     private Courier courier;
 
     public enum Status {

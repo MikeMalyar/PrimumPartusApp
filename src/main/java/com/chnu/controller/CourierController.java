@@ -1,5 +1,6 @@
 package com.chnu.controller;
 
+import com.chnu.controller.base.BaseController;
 import com.chnu.model.Courier;
 import com.chnu.rest.GenericResponse;
 import com.chnu.service.ICourierService;
@@ -10,7 +11,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping(value = "/courier")
-public class CourierController {
+public class CourierController extends BaseController {
     private final ICourierService courierService;
 
     @Autowired
@@ -20,6 +21,7 @@ public class CourierController {
 
     @PostMapping("")
     public GenericResponse<Courier> save(@RequestBody Courier courier) {
+        validate(courier);
         GenericResponse<Courier> response = GenericResponse
                 .of(courierService.save(courier).orElse(null));
         return response.getResult() != null ? response :
@@ -36,16 +38,11 @@ public class CourierController {
 
     @PutMapping("")
     public GenericResponse<Courier> update(@RequestBody Courier object) {
+        validate(object);
         if(object != null) {
             return GenericResponse.of(courierService.update(object));
         }
         return GenericResponse.error("Courier is null.");
-    }
-
-    @DeleteMapping("")
-    public GenericResponse<Void> delete(@RequestBody Courier object) {
-        courierService.delete(object);
-        return GenericResponse.empty();
     }
 
     @DeleteMapping("/{id}")

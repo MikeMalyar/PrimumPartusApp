@@ -1,5 +1,6 @@
 package com.chnu.controller;
 
+import com.chnu.controller.base.BaseController;
 import com.chnu.dto.CompanyDTO;
 import com.chnu.model.Company;
 import com.chnu.model.User;
@@ -14,7 +15,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping(value = "/company")
-public class CompanyController {
+public class CompanyController extends BaseController {
     private final ICompanyService companyService;
     private final IUserService userService;
 
@@ -27,6 +28,7 @@ public class CompanyController {
     @PostMapping("")
     public GenericResponse<CompanyDTO> save(@RequestBody CompanyDTO companyDTO) {
         Company company = fromCompanyDTO(companyDTO);
+        validate(company);
         if(company != null) {
             return GenericResponse.of(CompanyDTO.fromCompany(companyService.save(company).orElse(null)));
         }
@@ -44,6 +46,7 @@ public class CompanyController {
     @PutMapping("")
     public GenericResponse<CompanyDTO> update(@RequestBody CompanyDTO companyDTO) {
         Company company = fromCompanyDTO(companyDTO);
+        validate(company);
         if(company != null) {
             return GenericResponse.of(CompanyDTO.fromCompany(companyService.update(company)));
         }

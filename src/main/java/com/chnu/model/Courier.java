@@ -4,6 +4,7 @@ import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -11,11 +12,13 @@ import java.io.Serializable;
 public class Courier implements Serializable {
     @Id
     @Column(name = "user_id")
+    @NotNull(message = "User id cannot be null")
     private Long userId;
 
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "transport_id", referencedColumnName = "transport_id", nullable = false)
     @OnDelete(action = OnDeleteAction.CASCADE)
+    @NotNull(message = "Transport cannot be null")
     private Transport transport;
 
     @Column(name = "company_id")

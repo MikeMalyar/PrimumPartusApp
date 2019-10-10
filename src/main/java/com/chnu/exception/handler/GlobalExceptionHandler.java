@@ -1,5 +1,6 @@
 package com.chnu.exception.handler;
 
+import com.chnu.exception.GeneralValidationException;
 import com.chnu.rest.GenericResponse;
 import com.chnu.util.LoggerUtil;
 import com.chnu.util.PropertiesUtil;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 
 import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 import static com.chnu.util.PropertiesUtil.getProperty;
 
@@ -36,6 +39,22 @@ public class GlobalExceptionHandler {
         GenericResponse response = GenericResponse.error(ex.getMessage());
         response.setAdditionalInformation(Collections.singletonMap("requestUrl", request.getDescription(false)));
         return new ResponseEntity<>(response, HttpStatus.LOCKED);
+    }
+
+    @ExceptionHandler(GeneralValidationException.class)
+    public ResponseEntity<?> validationExceptionHandler(GeneralValidationException ex, WebRequest request) {
+        GenericResponse response = GenericResponse.error(ex.getMessage());
+        Map<String, Object> map = new HashMap<>();
+        map.put("requestUrl", request.getDescription(false));
+        map.put("Validation errors", ex.getValidationErrors());
+        response.setAdditionalInformation(map);
+        StringBuilder log = new StringBuilder();
+        log.append("Cannot validate instance of ").append(ex.getClazz().getName()).append(" class\n");
+        ex.getValidationErrors().forEach(err -> {
+            log.append(" with message: ").append(err).append("\n");
+        });
+        logger.warn(log.toString());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
     }
 
     private String getExceptionString(Exception ex) {

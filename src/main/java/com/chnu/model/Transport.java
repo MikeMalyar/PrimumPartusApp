@@ -1,6 +1,8 @@
 package com.chnu.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -15,12 +17,18 @@ public class Transport implements Serializable {
     private String description;
 
     @Column(name = "min_weight", nullable = false)
+    @NotNull(message = "Min weight cannot be null")
+    @Min(value = 0)
     private float minWeight;
 
     @Column(name = "max_weight", nullable = false)
+    @NotNull(message = "Max weight cannot be null")
+    @Min(value = 0)
     private float maxWeight;
 
     @Column(name = "max_volume", nullable = false)
+    @NotNull(message = "Max volume cannot be null")
+    @Min(value = 0)
     private float maxVolume;
 
     public long getTransportId() {
