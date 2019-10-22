@@ -1,6 +1,11 @@
 package com.chnu.model;
 
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.Id;
+import javax.persistence.Table;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.util.Date;
 
 @Entity
@@ -9,15 +14,19 @@ public class Profile {
 
     @Id
     @Column(name = "user_id")
+    @NotNull(message = "User id cannot be null")
     private Long userId;
 
     @Column(name="first_name")
+    @NotBlank(message = "First name cannot be blank")
     private String firstName;
 
     @Column(name="last_name")
+    @NotBlank(message = "Last name cannot be blank")
     private  String lastName;
 
     @Column(name="dob")
+    @NotNull(message = "Date of birth cannot be null")
     private Date dob;
 
     public Long getUserId() {

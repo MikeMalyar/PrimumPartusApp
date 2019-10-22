@@ -1,10 +1,16 @@
 package com.chnu.wrapper;
 
+import javax.validation.constraints.NotBlank;
+
 public class UserRegistrationWrapper {
 
+    @NotBlank(message = "Email cannot be blank")
     private String email;
+    @NotBlank(message = "Password cannot be blank")
     private String password;
+    @NotBlank(message = "Confirm password cannot be blank")
     private String confirmPassword;
+    @NotBlank(message = "Role cannot be blank")
     private String role;
 
     public String getEmail() {
