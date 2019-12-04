@@ -12,6 +12,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+import java.util.Arrays;
+import java.util.stream.Stream;
+
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackages = "com.chnu")
@@ -19,6 +22,8 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
     private static final String[] WHITE_LIST_URLS = {"/user/login", "/user/logout", "/user/register",
             "/user/register/confirm", "/test/**"};
+    private static final String[] WHITE_LIST_VIEWS = {"/", "/login", "/registration"};
+    private static final String[] RESOURCE_URLS = {"/resources/**"};
 
     @Autowired
     private UserService userService;
@@ -44,12 +49,17 @@ public class SecurityConfiguration extends WebSecurityConfigurerAdapter {
 
                 .authorizeRequests()
 
-                .antMatchers(WHITE_LIST_URLS)
+                .antMatchers(Stream.concat(
+                                Stream.concat(Arrays.stream(WHITE_LIST_URLS), Arrays.stream(WHITE_LIST_VIEWS)),
+                                Arrays.stream(RESOURCE_URLS))
+                        .toArray(String[]::new))
                 .permitAll()
 
                 .anyRequest()
                 .authenticated()
-                .and();
+                .and()
+
+                .formLogin().failureForwardUrl("/login").loginPage("/login");
     }
 
     @Override
