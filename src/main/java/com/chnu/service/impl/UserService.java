@@ -43,6 +43,7 @@ public class UserService implements IUserService, UserDetailsService {
     private final IRoleRepository roleRepository;
     private final AuthenticationManager authenticationManager;
     private final BCryptPasswordEncoder passwordEncoder;
+    private final LetterService letterService;
 
     private static final Integer maxLoginAttempts;
     static {
@@ -57,12 +58,13 @@ public class UserService implements IUserService, UserDetailsService {
     @Autowired
     public UserService(IUserRepository userRepository, AuthenticationManager authenticationManager,
                        BCryptPasswordEncoder passwordEncoder, VerificationTokenRepository verificationTokenRepository,
-                       RoleRepository roleRepository) {
+                       RoleRepository roleRepository, LetterService letterService) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.passwordEncoder = passwordEncoder;
         this.verificationTokenRepository = verificationTokenRepository;
         this.roleRepository = roleRepository;
+        this.letterService = letterService;
     }
 
     @Override
@@ -85,6 +87,9 @@ public class UserService implements IUserService, UserDetailsService {
                 .setUser(user);
         token.calculateExpiryDate();
         verificationTokenRepository.save(token);
+
+        String url = "http://localhost:8080/user/register/confirm/" + token.getToken();
+        letterService.sendEmailVerificationLetter(user.getEmail(), url);
 
         return UserDTO.fromUser(user);
     }

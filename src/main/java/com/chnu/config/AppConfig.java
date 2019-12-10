@@ -6,6 +6,8 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.orm.hibernate5.HibernateTransactionManager;
 import org.springframework.orm.hibernate5.LocalSessionFactoryBean;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
@@ -16,7 +18,7 @@ import java.util.Properties;
 import static org.hibernate.cfg.AvailableSettings.*;
 
 @Configuration
-@PropertySource("classpath:database.properties")
+@PropertySource({"classpath:database.properties", "classpath:mail.properties"})
 @EnableTransactionManagement(proxyTargetClass = true)
 @ComponentScan(basePackages = "com.chnu")
 public class AppConfig {
@@ -57,5 +59,24 @@ public class AppConfig {
         transactionManager.setSessionFactory(getSessionFactory().getObject());
 
         return transactionManager;
+    }
+
+    @Bean
+    public JavaMailSender getMailSender() {
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost(environment.getProperty("mail.host"));
+        mailSender.setPort(Integer.parseInt(Objects.requireNonNull(environment.getProperty("mail.port"))));
+        mailSender.setUsername(environment.getProperty("mail.username"));
+        mailSender.setPassword(environment.getProperty("mail.password"));
+
+        Properties javaMailProperties = new Properties();
+        javaMailProperties.put("mail.smtp.starttls.enable", Objects.requireNonNull(environment.getProperty("mail.smtp.starttls.enable")));
+        javaMailProperties.put("mail.smtp.auth", Objects.requireNonNull(environment.getProperty("mail.smtp.auth")));
+        javaMailProperties.put("mail.transport.protocol", Objects.requireNonNull(environment.getProperty("mail.transport.protocol")));
+        javaMailProperties.put("mail.debug", Objects.requireNonNull(environment.getProperty("mail.debug")));
+
+        mailSender.setJavaMailProperties(javaMailProperties);
+
+        return mailSender;
     }
 }

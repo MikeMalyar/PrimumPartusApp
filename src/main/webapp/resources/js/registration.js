@@ -11,7 +11,8 @@ function registration() {
         data: JSON.stringify({
             "email" : email,
             "password": password,
-            "confirmPassword": confirmPassword
+            "confirmPassword": confirmPassword,
+            "role": "USER"
         }),
         contentType: "application/json"
     }).done(function (data) {
