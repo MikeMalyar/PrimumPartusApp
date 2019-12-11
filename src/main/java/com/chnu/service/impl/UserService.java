@@ -77,7 +77,7 @@ public class UserService implements IUserService, UserDetailsService {
                 .setEnabled(false);
 
         Role role = roleRepository.findByRole(wrapper.getRole())
-                .orElse(roleRepository.findByRole("USER").orElse(null));
+                .orElse(roleRepository.findByRole("USER").orElse(roleRepository.save(new Role().setRole("USER"))));
         user.setRole(role);
 
         user = userRepository.save(user);
