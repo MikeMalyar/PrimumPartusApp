@@ -2,6 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/PrimumPartus.iml" filepath="$PROJECT_DIR$/PrimumPartus.iml" />
       <module fileurl="file://$PROJECT_DIR$/PrimumPartusApp.iml" filepath="$PROJECT_DIR$/PrimumPartusApp.iml" />
     </modules>
   </component>
