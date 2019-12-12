@@ -26,7 +26,7 @@
         <input class="loginButton" type="button" value="Registration"/>
     </div>
     <div class="content">
-
+        <img alt="Error" src=""/>
     </div>
     <div class="footer">
         Contact information:
